@@ -1,0 +1,458 @@
+RETAIL SALES FORECASTING - POWER BI
+============================================================
+
+
+============================================================
+1. POWER QUERY (M CODE)
+============================================================
+
+let
+
+    // Load CSV
+    Source = Csv.Document(
+        File.Contents("../data/retail_sales.csv"),
+        [
+            Delimiter = ",",
+            Encoding = 65001,
+            QuoteStyle = QuoteStyle.Csv
+        ]
+    ),
+
+    // Promote headers
+    PromoteHeaders = Table.PromoteHeaders(
+        Source,
+        [PromoteAllScalars = true]
+    ),
+
+    // Change data types
+    ChangeTypes = Table.TransformColumnTypes(
+        PromoteHeaders,
+        {
+            {"Date", type date},
+            {"Store_ID", type text},
+            {"Category", type text},
+            {"Units_Sold", Int64.Type},
+            {"Unit_Price", type number},
+            {"Discount_Percent", type number},
+            {"Promotion", Int64.Type},
+            {"Holiday", Int64.Type},
+            {"Sales", type number}
+        }
+    ),
+
+    // Remove duplicates
+    RemoveDuplicates = Table.Distinct(
+        ChangeTypes
+    ),
+
+    // Remove rows containing errors
+    RemoveErrors = Table.RemoveRowsWithErrors(
+        RemoveDuplicates
+    ),
+
+    // Add Year
+    AddYear = Table.AddColumn(
+        RemoveErrors,
+        "Year",
+        each Date.Year([Date]),
+        Int64.Type
+    ),
+
+    // Add Month Number
+    AddMonth = Table.AddColumn(
+        AddYear,
+        "Month Number",
+        each Date.Month([Date]),
+        Int64.Type
+    ),
+
+    // Add Month Name
+    AddMonthName = Table.AddColumn(
+        AddMonth,
+        "Month Name",
+        each Date.MonthName([Date]),
+        type text
+    ),
+
+    // Add Quarter
+    AddQuarter = Table.AddColumn(
+        AddMonthName,
+        "Quarter",
+        each "Q" &
+            Text.From(
+                Date.QuarterOfYear([Date])
+            ),
+        type text
+    ),
+
+    // Add Day of Week
+    AddDayOfWeek = Table.AddColumn(
+        AddQuarter,
+        "Day of Week",
+        each Date.DayOfWeekName([Date]),
+        type text
+    ),
+
+    // Add Weekend / Weekday
+    AddWeekend = Table.AddColumn(
+        AddDayOfWeek,
+        "Day Type",
+        each
+            if Date.DayOfWeek(
+                [Date],
+                Day.Monday
+            ) >= 5
+            then "Weekend"
+            else "Weekday",
+        type text
+    )
+
+in
+    AddWeekend
+
+
+============================================================
+2. DATE TABLE - DAX
+============================================================
+
+DateTable =
+ADDCOLUMNS(
+    CALENDAR(
+        MIN(RetailSales[Date]),
+        MAX(RetailSales[Date])
+    ),
+    "Year",
+        YEAR([Date]),
+    "Month Number",
+        MONTH([Date]),
+    "Month",
+        FORMAT([Date], "MMMM"),
+    "Quarter",
+        "Q" & FORMAT([Date], "Q"),
+    "Day",
+        DAY([Date]),
+    "Day of Week",
+        WEEKDAY([Date], 2),
+    "Day Name",
+        FORMAT([Date], "dddd"),
+    "Week Number",
+        WEEKNUM([Date], 2)
+)
+
+
+============================================================
+3. TOTAL SALES
+============================================================
+
+Total Sales =
+SUM(
+    RetailSales[Sales]
+)
+
+
+============================================================
+4. TOTAL UNITS SOLD
+============================================================
+
+Total Units Sold =
+SUM(
+    RetailSales[Units_Sold]
+)
+
+
+============================================================
+5. TOTAL TRANSACTIONS
+============================================================
+
+Total Transactions =
+COUNTROWS(
+    RetailSales
+)
+
+
+============================================================
+6. AVERAGE SALES
+============================================================
+
+Average Sales =
+AVERAGE(
+    RetailSales[Sales]
+)
+
+
+============================================================
+7. AVERAGE UNIT PRICE
+============================================================
+
+Average Unit Price =
+AVERAGE(
+    RetailSales[Unit_Price]
+)
+
+
+============================================================
+8. AVERAGE DISCOUNT
+============================================================
+
+Average Discount =
+AVERAGE(
+    RetailSales[Discount_Percent]
+)
+
+
+============================================================
+9. SALES PER UNIT
+============================================================
+
+Sales per Unit =
+DIVIDE(
+    [Total Sales],
+    [Total Units Sold],
+    0
+)
+
+
+============================================================
+10. PREVIOUS YEAR SALES
+============================================================
+
+Previous Year Sales =
+CALCULATE(
+    [Total Sales],
+    SAMEPERIODLASTYEAR(
+        DateTable[Date]
+    )
+)
+
+
+============================================================
+11. YEAR-OVER-YEAR GROWTH
+============================================================
+
+YoY Sales Growth =
+DIVIDE(
+    [Total Sales] -
+    [Previous Year Sales],
+    [Previous Year Sales],
+    0
+)
+
+
+============================================================
+12. PROMOTION SALES
+============================================================
+
+Promotion Sales =
+CALCULATE(
+    [Total Sales],
+    RetailSales[Promotion] = 1
+)
+
+
+============================================================
+13. NON-PROMOTION SALES
+============================================================
+
+Non Promotion Sales =
+CALCULATE(
+    [Total Sales],
+    RetailSales[Promotion] = 0
+)
+
+
+============================================================
+14. HOLIDAY SALES
+============================================================
+
+Holiday Sales =
+CALCULATE(
+    [Total Sales],
+    RetailSales[Holiday] = 1
+)
+
+
+============================================================
+15. NON-HOLIDAY SALES
+============================================================
+
+Non Holiday Sales =
+CALCULATE(
+    [Total Sales],
+    RetailSales[Holiday] = 0
+)
+
+
+============================================================
+16. SALES CONTRIBUTION %
+============================================================
+
+Sales Contribution % =
+DIVIDE(
+    [Total Sales],
+    CALCULATE(
+        [Total Sales],
+        ALL(RetailSales)
+    ),
+    0
+)
+
+
+============================================================
+17. CATEGORY RANK
+============================================================
+
+Category Rank =
+RANKX(
+    ALL(
+        RetailSales[Category]
+    ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+
+============================================================
+18. STORE RANK
+============================================================
+
+Store Rank =
+RANKX(
+    ALL(
+        RetailSales[Store_ID]
+    ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+
+============================================================
+19. FORECASTED SALES
+============================================================
+
+Forecasted Sales =
+SUM(
+    SalesForecast[Predicted_Sales]
+)
+
+
+============================================================
+20. ACTUAL FORECAST SALES
+============================================================
+
+Actual Forecast Sales =
+SUM(
+    SalesForecast[Sales]
+)
+
+
+============================================================
+21. FORECAST ERROR
+============================================================
+
+Forecast Error =
+[Actual Forecast Sales]
+-
+[Forecasted Sales]
+
+
+============================================================
+22. ABSOLUTE FORECAST ERROR
+============================================================
+
+Absolute Forecast Error =
+ABS(
+    [Forecast Error]
+)
+
+
+============================================================
+23. FORECAST ACCURACY
+============================================================
+
+Forecast Accuracy =
+1 -
+DIVIDE(
+    [Absolute Forecast Error],
+    [Actual Forecast Sales],
+    0
+)
+
+
+============================================================
+24. FORECAST VARIANCE %
+============================================================
+
+Forecast Variance % =
+DIVIDE(
+    [Forecasted Sales] -
+    [Actual Forecast Sales],
+    [Actual Forecast Sales],
+    0
+)
+
+
+============================================================
+25. MONTHLY SALES
+============================================================
+
+Monthly Sales =
+[Total Sales]
+
+
+============================================================
+26. CATEGORY SALES
+============================================================
+
+Category Sales =
+[Total Sales]
+
+
+============================================================
+27. STORE SALES
+============================================================
+
+Store Sales =
+[Total Sales]
+
+
+============================================================
+28. PROMOTION PERFORMANCE
+============================================================
+
+Promotion Performance =
+DIVIDE(
+    [Promotion Sales],
+    [Total Sales],
+    0
+)
+
+
+============================================================
+29. HOLIDAY PERFORMANCE
+============================================================
+
+Holiday Performance =
+DIVIDE(
+    [Holiday Sales],
+    [Total Sales],
+    0
+)
+
+
+============================================================
+30. FINAL KPI SUMMARY
+============================================================
+
+Total Sales
+Total Units Sold
+Total Transactions
+Average Sales
+Average Unit Price
+Average Discount
+YoY Sales Growth
+Forecast Accuracy
+Forecast Vari
