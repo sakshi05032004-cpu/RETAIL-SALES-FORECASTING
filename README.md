@@ -1,4 +1,4 @@
-#Retail Sales Forecasting Using Machine Learning
+##Retail Sales Forecasting Using Machine Learning
 #Overview
 A machine learning project that analyzes historical retail sales data and predicts future sales using Python and ML algorithms. Objectives
 Clean and analyze sales data
