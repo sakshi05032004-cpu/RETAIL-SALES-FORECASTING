@@ -1,20 +1,9 @@
 -- RETAIL SALES ANALYSIS
--- Retail Sales Forecasting Using Machine Learning
--- ============================================================
-
-
--- ============================================================
--- 1. CREATE DATABASE
--- ============================================================
-
+#CREATE DATABASE
 CREATE DATABASE retail_sales_db;
-
 USE retail_sales_db;
 
-
--- ============================================================
--- 2. CREATE SALES TABLE
--- ============================================================
+#CREATE SALES TABLE
 
 CREATE TABLE retail_sales (
     Date DATE,
@@ -28,46 +17,26 @@ CREATE TABLE retail_sales (
     Sales DECIMAL(15,2)
 );
 
-
--- ============================================================
--- 3. CHECK TOTAL RECORDS
--- ============================================================
-
+#CHECK TOTAL RECORDS
 SELECT COUNT(*) AS Total_Records
 FROM retail_sales;
 
-
--- ============================================================
--- 4. TOTAL SALES
--- ============================================================
-
+#TOTAL SALES
 SELECT
     ROUND(SUM(Sales), 2) AS Total_Sales
 FROM retail_sales;
 
-
--- ============================================================
--- 5. TOTAL UNITS SOLD
--- ============================================================
-
+#TOTAL UNITS SOLD
 SELECT
     SUM(Units_Sold) AS Total_Units_Sold
 FROM retail_sales;
 
-
--- ============================================================
--- 6. AVERAGE SALES
--- ============================================================
-
+#AVERAGE SALES
 SELECT
     ROUND(AVG(Sales), 2) AS Average_Sales
 FROM retail_sales;
 
-
--- ============================================================
--- 7. TOTAL SALES BY CATEGORY
--- ============================================================
-
+# TOTAL SALES BY CATEGORY
 SELECT
     Category,
     ROUND(SUM(Sales), 2) AS Total_Sales
@@ -75,11 +44,7 @@ FROM retail_sales
 GROUP BY Category
 ORDER BY Total_Sales DESC;
 
-
--- ============================================================
--- 8. TOTAL UNITS BY CATEGORY
--- ============================================================
-
+#TOTAL UNITS BY CATEGORY
 SELECT
     Category,
     SUM(Units_Sold) AS Total_Units
@@ -87,11 +52,7 @@ FROM retail_sales
 GROUP BY Category
 ORDER BY Total_Units DESC;
 
-
--- ============================================================
--- 9. SALES BY STORE
--- ============================================================
-
+#SALES BY STORE
 SELECT
     Store_ID,
     ROUND(SUM(Sales), 2) AS Total_Sales
@@ -99,11 +60,7 @@ FROM retail_sales
 GROUP BY Store_ID
 ORDER BY Total_Sales DESC;
 
-
--- ============================================================
--- 10. TOP 5 STORES
--- ============================================================
-
+#TOP 5 STORES
 SELECT
     Store_ID,
     ROUND(SUM(Sales), 2) AS Total_Sales
@@ -113,10 +70,7 @@ ORDER BY Total_Sales DESC
 LIMIT 5;
 
 
--- ============================================================
--- 11. MONTHLY SALES
--- ============================================================
-
+#MONTHLY SALES
 SELECT
     YEAR(Date) AS Year,
     MONTH(Date) AS Month,
@@ -128,12 +82,7 @@ GROUP BY
 ORDER BY
     Year,
     Month;
-
-
--- ============================================================
--- 12. YEARLY SALES
--- ============================================================
-
+#YEARLY SALES
 SELECT
     YEAR(Date) AS Year,
     ROUND(SUM(Sales), 2) AS Total_Sales
@@ -141,11 +90,7 @@ FROM retail_sales
 GROUP BY YEAR(Date)
 ORDER BY Year;
 
-
--- ============================================================
--- 13. SALES BY DAY OF WEEK
--- ============================================================
-
+#SALES BY DAY OF WEEK
 SELECT
     DAYNAME(Date) AS Day_Name,
     ROUND(SUM(Sales), 2) AS Total_Sales
@@ -153,11 +98,7 @@ FROM retail_sales
 GROUP BY DAYNAME(Date)
 ORDER BY Total_Sales DESC;
 
-
--- ============================================================
--- 14. WEEKEND VS WEEKDAY SALES
--- ============================================================
-
+#WEEKEND VS WEEKDAY SALES
 SELECT
     CASE
         WHEN DAYOFWEEK(Date) IN (1, 7)
@@ -166,16 +107,10 @@ SELECT
     END AS Day_Type,
 
     ROUND(SUM(Sales), 2) AS Total_Sales
-
 FROM retail_sales
-
 GROUP BY Day_Type;
 
-
--- ============================================================
--- 15. PROMOTION VS NON-PROMOTION SALES
--- ============================================================
-
+#PROMOTION VS NON-PROMOTION SALES
 SELECT
     CASE
         WHEN Promotion = 1
@@ -185,16 +120,10 @@ SELECT
 
     ROUND(SUM(Sales), 2) AS Total_Sales,
     SUM(Units_Sold) AS Total_Units
-
 FROM retail_sales
-
 GROUP BY Promotion_Status;
 
-
--- ============================================================
--- 16. HOLIDAY VS NON-HOLIDAY SALES
--- ============================================================
-
+#HOLIDAY VS NON-HOLIDAY SALES
 SELECT
     CASE
         WHEN Holiday = 1
@@ -204,16 +133,10 @@ SELECT
 
     ROUND(SUM(Sales), 2) AS Total_Sales,
     SUM(Units_Sold) AS Total_Units
-
 FROM retail_sales
-
 GROUP BY Holiday_Status;
 
-
--- ============================================================
--- 17. DISCOUNT ANALYSIS
--- ============================================================
-
+#DISCOUNT ANALYSIS
 SELECT
     Discount_Percent,
     ROUND(SUM(Sales), 2) AS Total_Sales,
@@ -222,11 +145,7 @@ FROM retail_sales
 GROUP BY Discount_Percent
 ORDER BY Discount_Percent;
 
-
--- ============================================================
--- 18. CATEGORY PERFORMANCE BY STORE
--- ============================================================
-
+#CATEGORY PERFORMANCE BY STORE
 SELECT
     Store_ID,
     Category,
@@ -239,11 +158,7 @@ ORDER BY
     Store_ID,
     Total_Sales DESC;
 
-
--- ============================================================
--- 19. TOP 10 STORE-CATEGORY COMBINATIONS
--- ============================================================
-
+#TOP 10 STORE-CATEGORY COMBINATIONS
 SELECT
     Store_ID,
     Category,
@@ -255,11 +170,7 @@ GROUP BY
 ORDER BY Total_Sales DESC
 LIMIT 10;
 
-
--- ============================================================
--- 20. AVERAGE UNIT PRICE BY CATEGORY
--- ============================================================
-
+#AVERAGE UNIT PRICE BY CATEGORY
 SELECT
     Category,
     ROUND(AVG(Unit_Price), 2) AS Average_Unit_Price
@@ -267,11 +178,7 @@ FROM retail_sales
 GROUP BY Category
 ORDER BY Average_Unit_Price DESC;
 
-
--- ============================================================
--- 21. AVERAGE DISCOUNT BY CATEGORY
--- ============================================================
-
+#AVERAGE DISCOUNT BY CATEGORY
 SELECT
     Category,
     ROUND(AVG(Discount_Percent), 2) AS Average_Discount
@@ -279,11 +186,7 @@ FROM retail_sales
 GROUP BY Category
 ORDER BY Average_Discount DESC;
 
-
--- ============================================================
--- 22. DAILY SALES
--- ============================================================
-
+#DAILY SALES
 SELECT
     Date,
     ROUND(SUM(Sales), 2) AS Daily_Sales
@@ -291,11 +194,7 @@ FROM retail_sales
 GROUP BY Date
 ORDER BY Date;
 
-
--- ============================================================
--- 23. HIGHEST SALES DAY
--- ============================================================
-
+#HIGHEST SALES DAY
 SELECT
     Date,
     ROUND(SUM(Sales), 2) AS Total_Sales
@@ -304,11 +203,7 @@ GROUP BY Date
 ORDER BY Total_Sales DESC
 LIMIT 1;
 
-
--- ============================================================
--- 24. LOWEST SALES DAY
--- ============================================================
-
+#LOWEST SALES DAY
 SELECT
     Date,
     ROUND(SUM(Sales), 2) AS Total_Sales
@@ -317,14 +212,9 @@ GROUP BY Date
 ORDER BY Total_Sales
 LIMIT 1;
 
-
--- ============================================================
--- 25. MONTH-OVER-MONTH SALES GROWTH
--- ============================================================
-
+#MONTH-OVER-MONTH SALES GROWTH
 WITH monthly_sales AS (
-
-    SELECT
+SELECT
         DATE_FORMAT(Date, '%Y-%m') AS Sales_Month,
         SUM(Sales) AS Total_Sales
 
@@ -351,14 +241,9 @@ SELECT
     ) AS MoM_Growth_Percent
 
 FROM monthly_sales
-
 ORDER BY Sales_Month;
 
-
--- ============================================================
--- 26. CATEGORY SALES CONTRIBUTION
--- ============================================================
-
+#CATEGORY SALES CONTRIBUTION
 SELECT
     Category,
 
@@ -375,18 +260,11 @@ SELECT
         * 100,
         2
     ) AS Sales_Contribution_Percent
-
 FROM retail_sales
-
 GROUP BY Category
-
 ORDER BY Category_Sales DESC;
 
-
--- ============================================================
--- 27. STORE SALES CONTRIBUTION
--- ============================================================
-
+#STORE SALES CONTRIBUTION
 SELECT
     Store_ID,
 
@@ -403,18 +281,11 @@ SELECT
         * 100,
         2
     ) AS Sales_Contribution_Percent
-
 FROM retail_sales
-
 GROUP BY Store_ID
-
 ORDER BY Store_Sales DESC;
 
-
--- ============================================================
--- 28. MONTHLY CATEGORY PERFORMANCE
--- ============================================================
-
+#MONTHLY CATEGORY PERFORMANCE
 SELECT
     YEAR(Date) AS Year,
     MONTH(Date) AS Month,
@@ -424,24 +295,17 @@ SELECT
         SUM(Sales),
         2
     ) AS Total_Sales
-
 FROM retail_sales
-
 GROUP BY
     YEAR(Date),
     MONTH(Date),
     Category
-
 ORDER BY
     Year,
     Month,
     Total_Sales DESC;
 
-
--- ============================================================
--- 29. SALES AND UNITS BY PROMOTION
--- ============================================================
-
+#SALES AND UNITS BY PROMOTION
 SELECT
     Promotion,
 
@@ -456,40 +320,27 @@ SELECT
         AVG(Sales),
         2
     ) AS Average_Sales
-
 FROM retail_sales
-
 GROUP BY Promotion;
 
-
--- ============================================================
--- 30. FINAL KPI SUMMARY
--- ============================================================
-
+#FINAL KPI SUMMARY
 SELECT
-
-    COUNT(*) AS Total_Transactions,
-
-    SUM(Units_Sold) AS Total_Units_Sold,
-
-    ROUND(
+ COUNT(*) AS Total_Transactions,
+ SUM(Units_Sold) AS Total_Units_Sold,
+ROUND(
         SUM(Sales),
         2
     ) AS Total_Sales,
-
-    ROUND(
+ ROUND(
         AVG(Sales),
         2
     ) AS Average_Sales,
-
-    ROUND(
+ROUND(
         AVG(Unit_Price),
         2
     ) AS Average_Unit_Price,
-
-    ROUND(
+ ROUND(
         AVG(Discount_Percent),
         2
     ) AS Average_Discount
-
 FROM retail_sales;
