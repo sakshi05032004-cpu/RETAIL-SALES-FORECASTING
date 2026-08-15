@@ -1,55 +1,30 @@
 # DATA CLEANING - RETAIL SALES FORECASTING PROJECT
-# ============================================================
-
 import pandas as pd
 import numpy as np
 
-
-# ============================================================
-# 1. LOAD DATASET
-# ============================================================
-
+# LOAD DATASET
 input_file = "../data/retail_sales.csv"
-
 df = pd.read_csv(input_file)
-
 print("Original Dataset Shape:", df.shape)
 
-
-# ============================================================
-# 2. CHECK DATASET INFORMATION
-# ============================================================
-
+#CHECK DATASET INFORMATION
 print("\nDataset Information:")
 print(df.info())
-
 print("\nColumn Names:")
 print(df.columns.tolist())
 
-
-# ============================================================
-# 3. CONVERT DATE COLUMN
-# ============================================================
-
+#CONVERT DATE COLUMN
 df["Date"] = pd.to_datetime(
     df["Date"],
     errors="coerce"
 )
 
-
-# ============================================================
-# 4. CHECK MISSING VALUES
-# ============================================================
-
+#CHECK MISSING VALUES
 print("\nMissing Values Before Cleaning:")
 print(df.isnull().sum())
 
-
-# ============================================================
-# 5. HANDLE MISSING VALUES
-# ============================================================
-
-# Numerical columns
+#HANDLE MISSING VALUES
+#Numerical columns
 numeric_columns = [
     "Units_Sold",
     "Unit_Price",
@@ -81,25 +56,17 @@ for column in categorical_columns:
         df[column].mode()[0]
     )
 
-
-# ============================================================
-# 6. REMOVE DUPLICATE RECORDS
-# ============================================================
+#REMOVE DUPLICATE RECORDS
 
 duplicate_count = df.duplicated().sum()
-
 print(
     "\nDuplicate Rows Found:",
     duplicate_count
 )
-
 df = df.drop_duplicates()
 
 
-# ============================================================
-# 7. HANDLE INVALID VALUES
-# ============================================================
-
+#HANDLE INVALID VALUES
 # Units sold cannot be negative
 df.loc[
     df["Units_Sold"] < 0,
@@ -143,18 +110,10 @@ df["Sales"] = df["Sales"].fillna(
     df["Sales"].median()
 )
 
-
-# ============================================================
-# 8. REMOVE INVALID DATES
-# ============================================================
-
+#REMOVE INVALID DATES
 df = df.dropna(subset=["Date"])
 
-
-# ============================================================
-# 9. STANDARDIZE TEXT COLUMNS
-# ============================================================
-
+#STANDARDIZE TEXT COLUMNS
 df["Store_ID"] = (
     df["Store_ID"]
     .astype(str)
@@ -167,17 +126,10 @@ df["Category"] = (
     .str.strip()
 )
 
-
-# ============================================================
-# 10. CONVERT DATA TYPES
-# ============================================================
-
+#CONVERT DATA TYPES
 df["Units_Sold"] = df["Units_Sold"].astype(int)
-
 df["Promotion"] = df["Promotion"].astype(int)
-
 df["Holiday"] = df["Holiday"].astype(int)
-
 df["Discount_Percent"] = (
     df["Discount_Percent"].astype(float)
 )
@@ -190,23 +142,14 @@ df["Sales"] = (
     df["Sales"].astype(float)
 )
 
-
-# ============================================================
-# 11. SORT DATA BY DATE
-# ============================================================
-
+#SORT DATA BY DATE
 df = df.sort_values(
     by=["Date", "Store_ID", "Category"]
 ).reset_index(drop=True)
 
-
-# ============================================================
-# 12. FINAL CHECK
-# ============================================================
-
+#FINAL CHECK
 print("\nMissing Values After Cleaning:")
 print(df.isnull().sum())
-
 print(
     "\nDuplicate Rows After Cleaning:",
     df.duplicated().sum()
@@ -217,29 +160,18 @@ print(
     df.shape
 )
 
-
-# ============================================================
-# 13. SAVE CLEANED DATASET
-# ============================================================
-
+#SAVE CLEANED DATASET
 output_file = "../data/retail_sales_cleaned.csv"
-
 df.to_csv(
     output_file,
     index=False
 )
-
 print(
     "\nCleaned dataset saved successfully at:",
     output_file
 )
 
-
-# ============================================================
-# 14. DISPLAY SAMPLE DATA
-# ============================================================
-
+#DISPLAY SAMPLE DATA
 print("\nCleaned Dataset Preview:")
 print(df.head())
-
 print("\nCleaning completed successfully!")
